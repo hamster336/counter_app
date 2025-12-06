@@ -1,12 +1,15 @@
 import 'package:counter_app/models/count_controller.dart';
+import 'package:counter_app/models/local_storage.dart';
 import 'package:counter_app/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-void main() {
+void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  await LocalStorage.init();
   Get.put(CountController());
   
   runApp(const MyApp());
