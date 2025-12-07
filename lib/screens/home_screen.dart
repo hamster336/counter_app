@@ -34,7 +34,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive) {
       await LocalStorage.saveCount(
-        Counts(count: 10, date: CountController.getTime()),
+        Counts(
+          curCount: controller.currCount.value,
+          dailyCount: controller.dailyCount.value,
+          date: CountController.getTime(),
+        ),
       );
     }
   }
@@ -60,7 +64,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
       body: GestureDetector(
         onTap: () {
-          if (start) controller.increment();
+          if (start) {
+            controller.increment();
+            controller.incrementDaily();
+          }
         },
         child: ColoredBox(
           color: Colors.transparent,
@@ -161,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
               Obx(() {
                 return Text(
-                  '${controller.count}',
+                  '${controller.currCount}',
                   style: TextStyle(fontSize: 65, fontWeight: FontWeight.w700),
                 );
               }),
@@ -171,7 +178,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 width: size.width * 0.7,
                 height: size.height * 0.2,
                 child: InkWell(
-                  onTap: () => log('${LocalStorage.getNumOfDays()}'),
+                  onTap: () {
+                    final time = CountController.getTime();
+                    LocalStorage.getKeys();
+                    log(
+                      'current: ${controller.currCount.value} daily: ${controller.dailyCount.value}',
+                    );
+                  },
                   child: Card(
                     elevation: 5,
                     child: Center(

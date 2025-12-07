@@ -1,24 +1,27 @@
 import 'package:counter_app/models/local_storage.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class CountController extends GetxController {
-  var count = 0.obs;
+  var currCount = 0.obs;
+  var dailyCount = 0.obs;
   var startCount = false.obs;
 
   @override
   void onInit() {
-    count.value = LocalStorage.getCount(getTime());
+    currCount.value = LocalStorage.getCurrCount(getTime());
+    dailyCount.value = LocalStorage.getDailyCount(getTime());
     super.onInit();
   }
 
-  void increment() => count++;
+  void increment() => currCount++;
 
-  void decrement() => count--;
+  void incrementDaily() => dailyCount++;
 
-  void resetCount() => count.value = 0;
+  void resetCount() => currCount.value = 0;
 
   static String getTime() {
     final date = DateTime.now();
-    return '${date.year}${date.month}${date.day}${date.hour}';
+    return DateFormat('yyyy-MM-dd').format(date);
   }
 }

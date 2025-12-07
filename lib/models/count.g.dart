@@ -17,18 +17,21 @@ class CountsAdapter extends TypeAdapter<Counts> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Counts(
-      count: (fields[0] as num).toInt(),
-      date: fields[1] as String,
+      curCount: (fields[0] as num).toInt(),
+      date: fields[2] as String,
+      dailyCount: (fields[1] as num).toInt(),
     );
   }
 
   @override
   void write(BinaryWriter writer, Counts obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.count)
+      ..write(obj.curCount)
       ..writeByte(1)
+      ..write(obj.dailyCount)
+      ..writeByte(2)
       ..write(obj.date);
   }
 
