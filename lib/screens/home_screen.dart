@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:counter_app/models/count.dart';
 import 'package:counter_app/models/count_controller.dart';
 import 'package:counter_app/models/local_storage.dart';
@@ -16,12 +14,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final controller = Get.find<CountController>();
+  late List<Counts> data;
   bool start = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    data = LocalStorage.listOfCounts();
   }
 
   @override
@@ -48,11 +48,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     // final isDark = Theme.of(context).brightness == Brightness.dark;
     final size = MediaQuery.of(context).size;
+    final themeColor = Colors.cyan.shade400;
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        // elevation: 3,
         title: Text(
           'Counter',
           style: TextStyle(
@@ -65,61 +65,46 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
       body: GestureDetector(
         onTap: () {
-          if (start) {
-            controller.increment();
-          }
+          if (start) controller.increment();
         },
         child: ColoredBox(
           color: Colors.transparent,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              SizedBox(height: size.height * 0.02),
+
+              Obx(() {
+                return Text(
+                  '${controller.currCount}',
+                  style: TextStyle(fontSize: 65, fontWeight: FontWeight.w700),
+                );
+              }),
+
+              SizedBox(height: size.height * 0.02),
+
+              SizedBox(
+                width: size.width,
+                height: size.height * 0.3,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 20, bottom: 10),
+                  child: Obx(() {
+                    return LineChart(
+                      LineChartData(
+                        lineBarsData: [
+                          LineChartBarData(spots: getSpot(data), barWidth: 3),
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+              ).marginSymmetric(horizontal: 20),
+
+              Spacer(),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // start counting
-                  IconButton(
-                    onPressed: () {
-                      Get.defaultDialog(
-                        title: 'Start counting',
-                        titleStyle: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.blue,
-                        ),
-                        middleText: '\tThe counter can now be changed.\t',
-                        middleTextStyle: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        barrierDismissible: false,
-                        cancel: TextButton(
-                          onPressed: () => Get.back(), // pop the dialog box
-                          child: const Text(
-                            'Cancel',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ),
-                        confirm: TextButton(
-                          onPressed: () {
-                            Get.back(); // pop dialog box
-                            start = true;
-                          },
-                          child: const Text(
-                            'Start',
-                            style: TextStyle(fontSize: 20, color: Colors.blue),
-                          ),
-                        ),
-                      );
-                    },
-                    icon: Icon(Icons.play_arrow, size: 40),
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.greenAccent,
-                      foregroundColor: Colors.black,
-                    ),
-                  ),
-
                   // reset counting
                   IconButton(
                     onPressed: () {
@@ -164,61 +149,56 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     },
                     icon: Icon(Icons.restore, size: 40),
                     style: IconButton.styleFrom(
-                      backgroundColor: Colors.greenAccent,
+                      backgroundColor: themeColor,
+                      foregroundColor: Colors.black,
+                    ),
+                  ),
+
+                  // start counting
+                  IconButton(
+                    onPressed: () {
+                      Get.defaultDialog(
+                        title: 'Start counting',
+                        titleStyle: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.blue,
+                        ),
+                        middleText: '\tThe counter can now be changed.\t',
+                        middleTextStyle: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        barrierDismissible: false,
+                        cancel: TextButton(
+                          onPressed: () => Get.back(), // pop the dialog box
+                          child: const Text(
+                            'Cancel',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ),
+                        confirm: TextButton(
+                          onPressed: () {
+                            Get.back(); // pop dialog box
+                            start = true;
+                          },
+                          child: const Text(
+                            'Start',
+                            style: TextStyle(fontSize: 20, color: Colors.blue),
+                          ),
+                        ),
+                      );
+                    },
+                    icon: Icon(Icons.play_arrow, size: 40),
+                    style: IconButton.styleFrom(
+                      backgroundColor: themeColor,
                       foregroundColor: Colors.black,
                     ),
                   ),
                 ],
-              ).paddingSymmetric(horizontal: 20),
+              ).paddingSymmetric(horizontal: 25),
 
-              SizedBox(height: size.height * 0.01),
-
-              Obx(() {
-                return Text(
-                  '${controller.currCount}',
-                  style: TextStyle(fontSize: 65, fontWeight: FontWeight.w700),
-                );
-              }),
-
-              Spacer(),
-              SizedBox(
-                width: size.width * 0.8,
-                height: size.height * 0.25,
-                child: Card(
-                  elevation: 5,
-                  child: Center(
-                    child: Text(
-                      'Graph',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Spacer(),
-
-              Container(
-                width: size.width * 0.65,
-                height: size.height * 0.055,
-                decoration: BoxDecoration(
-                  color: Colors.greenAccent,
-                  borderRadius: BorderRadius.circular(35),
-                ),
-                child: Center(
-                  child: Text(
-                    'Tap Anywhere to count',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: size.height * 0.15),
+              SizedBox(height: size.height * 0.1),
             ],
           ),
         ),
@@ -226,23 +206,26 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
-  // BarChartData graph(){
-  //   final data = LocalStorage.listOfCounts();
+  // get the spots to plot
+  List<FlSpot> getSpot(List<Counts> data) {
+    final List<FlSpot> list = [];
 
-  //   BarChartData(
-  //     barGroups: data.asMap().entries.map((e){
-  //       final index = e.key;
-  //       final day = e.value;
+    for (var e in data) {
+      final xAxis = double.parse(
+        e.date.substring(e.date.length - 2),
+      ); // last two characters from the string (day of the month)
+      final yAxis = double.parse("${e.dailyCount}"); // count
 
-  //       return BarChartGroupData(x: index, barRods: [BarChartRodData(toY: day.dailyCount.toDouble())]);
-  //     }).toList(),
-  //   );
-  // }
+      list.add(FlSpot(xAxis, yAxis));
+    }
+
+    final time = CountController.getTime();
+    list.add(
+      FlSpot(
+        double.parse(time.substring(time.length - 2)),
+        double.parse('${controller.dailyCount.value}'),
+      ),
+    );
+    return list;
+  }
 }
-
-/* final time = CountController.getTime();
-                    LocalStorage.getKeys();
-                    log(
-                      'current: ${controller.currCount.value} daily: ${controller.dailyCount.value}',
-                    );
-                    // LocalStorage.clear(); */

@@ -47,18 +47,18 @@ class LocalStorage {
   }
 
   // get a list for the graph
-  static List<Counts> listOfCounts(){
+  static List<Counts> listOfCounts() {
     final box = Hive.box<Counts>(_countsBox);
     final List<Counts> result = [];
     final today = DateTime.now();
 
-    for(int i=6; i>=0; i--){
+    for (int i = 6; i >= 0; i--) {
       final date = today.subtract(Duration(days: i));
       final dateKey = DateFormat('yyyy-MM-dd').format(date);
 
-      if(box.containsKey(dateKey)){
+      if (box.containsKey(dateKey)) {
         result.add(box.get(dateKey)!);
-      }else{
+      } else {
         result.add(Counts(curCount: 0, dailyCount: 0, date: dateKey));
       }
     }
