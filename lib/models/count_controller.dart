@@ -14,9 +14,10 @@ class CountController extends GetxController {
     super.onInit();
   }
 
-  void increment() => currCount++;
-
-  void incrementDaily() => dailyCount++;
+  void increment() {
+    currCount++;
+    dailyCount++;
+  }
 
   void resetCount() => currCount.value = 0;
 

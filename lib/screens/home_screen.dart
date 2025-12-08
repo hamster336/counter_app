@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:counter_app/models/count.dart';
 import 'package:counter_app/models/count_controller.dart';
 import 'package:counter_app/models/local_storage.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -66,7 +67,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         onTap: () {
           if (start) {
             controller.increment();
-            controller.incrementDaily();
           }
         },
         child: ColoredBox(
@@ -115,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     },
                     icon: Icon(Icons.play_arrow, size: 40),
                     style: IconButton.styleFrom(
-                      backgroundColor: Colors.amber,
+                      backgroundColor: Colors.greenAccent,
                       foregroundColor: Colors.black,
                     ),
                   ),
@@ -144,9 +144,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           ),
                         ),
                         confirm: TextButton(
-                          onPressed: () {
+                          onPressed: () async {
                             Get.back(); // pop dialog box
                             controller.resetCount();
+                            await LocalStorage.saveCount(
+                              Counts(
+                                curCount: controller.currCount.value,
+                                dailyCount: controller.dailyCount.value,
+                                date: CountController.getTime(),
+                              ),
+                            );
                           },
                           child: const Text(
                             'Yes',
@@ -157,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     },
                     icon: Icon(Icons.restore, size: 40),
                     style: IconButton.styleFrom(
-                      backgroundColor: Colors.amber,
+                      backgroundColor: Colors.greenAccent,
                       foregroundColor: Colors.black,
                     ),
                   ),
@@ -175,25 +182,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
               Spacer(),
               SizedBox(
-                width: size.width * 0.7,
-                height: size.height * 0.2,
-                child: InkWell(
-                  onTap: () {
-                    final time = CountController.getTime();
-                    LocalStorage.getKeys();
-                    log(
-                      'current: ${controller.currCount.value} daily: ${controller.dailyCount.value}',
-                    );
-                  },
-                  child: Card(
-                    elevation: 5,
-                    child: Center(
-                      child: Text(
-                        'Graph',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w500,
-                        ),
+                width: size.width * 0.8,
+                height: size.height * 0.25,
+                child: Card(
+                  elevation: 5,
+                  child: Center(
+                    child: Text(
+                      'Graph',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -205,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 width: size.width * 0.65,
                 height: size.height * 0.055,
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 246, 249, 181),
+                  color: Colors.greenAccent,
                   borderRadius: BorderRadius.circular(35),
                 ),
                 child: Center(
@@ -214,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
-                      color: Colors.black54,
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -227,4 +225,24 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       ),
     );
   }
+
+  // BarChartData graph(){
+  //   final data = LocalStorage.listOfCounts();
+
+  //   BarChartData(
+  //     barGroups: data.asMap().entries.map((e){
+  //       final index = e.key;
+  //       final day = e.value;
+
+  //       return BarChartGroupData(x: index, barRods: [BarChartRodData(toY: day.dailyCount.toDouble())]);
+  //     }).toList(),
+  //   );
+  // }
 }
+
+/* final time = CountController.getTime();
+                    LocalStorage.getKeys();
+                    log(
+                      'current: ${controller.currCount.value} daily: ${controller.dailyCount.value}',
+                    );
+                    // LocalStorage.clear(); */
